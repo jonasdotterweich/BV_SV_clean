@@ -1,0 +1,41 @@
+
+
+library(dplyr)
+library(spThin)
+
+# Function to prepare and thin species data
+prepare_and_thin_species <- function(data, species_names, output_base_name) {
+  # Filter and select data
+  filtered_data <- data %>%
+    distinct(decimalLongitude, decimalLatitude, .keep_all= TRUE) %>%
+    filter(scientificName %in% species_names) %>%
+    select(decimalLatitude, decimalLongitude, species)
+
+  # Thinning
+  thin(
+    loc.data = filtered_data,
+    lat.col = "decimalLatitude",
+    long.col = "decimalLongitude",
+    spec.col = "species",
+    thin.par = 10,
+    reps = 5,
+    locs.thinned.list.return = FALSE,
+    write.files = TRUE,
+    max.files = 1,
+    out.dir = "occ_pts/thinned",
+    out.base = output_base_name,
+    write.log.file = FALSE,
+    log.file = paste0("spatial_thin_log_", output_base_name, ".txt"),
+    verbose = TRUE
+  )
+}
+
+# Usage for Myodes glareolus
+prepare_and_thin_species(M_glareolus3, 
+                         c("Myodes glareolus (Schreber, 1780)", "Clethrionomys glareolus (Schreber, 1780)"), 
+                         "bv_thin4")
+
+# Usage for Chionomys nivalis
+prepare_and_thin_species(C_nivalis2, 
+                         c("Chionomys nivalis (Martins, 1842)"), 
+                         "sv_thin3")
